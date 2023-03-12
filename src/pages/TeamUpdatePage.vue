@@ -7,40 +7,42 @@ CreateTime:19:54
   <div id="teamAddPage">
     <van-form @submit="onSubmit">
       <van-cell-group inset>
+        <van-row justify="center">
+          <van-uploader v-model="fileList" :after-read="afterRead" :max-count="1"/>
+        </van-row>
         <van-field
             v-model="addTeamData.name"
+            :rules="[{ required: true, message: '请输入队伍名' }]"
+            label="队伍名"
             name="name"
-            label="队伍名称"
-            placeholder="请输入队伍名称"
-            :rules="[{ required: true, message: '请输入队伍名称' }]"
+            placeholder="请输入队伍名"
         />
         <van-field
             v-model="addTeamData.description"
-            rows="4"
             autosize
-            label="队伍简介"
+            label="队伍描述"
+            placeholder="请输入队伍描述"
+            rows="4"
             type="textarea"
-            placeholder="请输入队伍简介"
         />
-        <!--过期时间-->
         <van-field
+            :placeholder="addTeamData.expireTime ? moment(addTeamData.expireTime).format('lll') :'点击选择过期时间'"
             is-link
+            label="过期时间"
+            name="datetimePicker"
             readonly
-            name="datePicker"
-            label="截止时间"
-            :placeholder="addTeamData.expireTime ?? '修改关闭加入队伍时间'"
             @click="showPicker = true"
         />
         <van-popup v-model:show="showPicker" position="bottom">
-          <van-date-picker
-              @confirm="onConfirm"
-              @cancel="showPicker = false"
+          <van-datetime-picker
+              v-model="addTeamData.expireTime"
+              :min-date="minDate"
+              title="请选择过期时间"
               type="datetime"
-              title="关闭队伍加入时间"
-              :min-date="minDate"/>
+              @confirm="showPicker = false"
+          />
         </van-popup>
-
-        <van-field name="radio" label="队伍状态">
+        <van-field label="队伍状态" name="radio">
           <template #input>
             <van-radio-group v-model="addTeamData.status" direction="horizontal">
               <van-radio name="0">公开</van-radio>
@@ -49,19 +51,18 @@ CreateTime:19:54
             </van-radio-group>
           </template>
         </van-field>
-
         <van-field
             v-if="Number(addTeamData.status) === 2"
             v-model="addTeamData.password"
-            type="password"
-            name="password"
-            label="密码"
-            placeholder="请输入队伍密码"
             :rules="[{ required: true, message: '请填写密码' }]"
+            label="密码"
+            name="password"
+            placeholder="请输入队伍密码"
+            type="password"
         />
       </van-cell-group>
       <div style="margin: 16px;">
-        <van-button round block type="primary" native-type="submit">
+        <van-button block native-type="submit" round type="primary">
           提交
         </van-button>
       </div>
@@ -69,57 +70,75 @@ CreateTime:19:54
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 
   import {useRoute, useRouter} from "vue-router";
   import {onMounted, ref} from "vue";
   import myAxios from "../plugins/myAxios";
-  import {showFailToast, showSuccessToast} from "vant/lib/vant.es";
+  import {showFailToast, showSuccessToast, showLoadingToast} from "vant/lib/vant.es";
   import moment from "moment";
 
   const router = useRouter();
   const route = useRoute();
-
-  // 日期展示器
+  const fileList = ref([]);
+  const avatarUrl = ref('');
+  const avatar = ref();
+  // 展示日期选择器
   const showPicker = ref(false);
-  // 当前时间
+
   const minDate = new Date();
-  const onConfirm = ({selectedValues}) => {
-    addTeamData.value.expireTime = selectedValues.join('-');
-    showPicker.value = false;
-  };
-  // 用户修改填写的表单数据 对象扩展
-  const addTeamData = ref({})
 
   const id = route.query.id;
-  console.log(id)
+  console.log('id:', id)
+  // 需要用户填写的表单数据
+  const addTeamData = ref({})
 
-  //获取队伍的信息
+  // 获取之前的队伍信息
   onMounted(async () => {
-    if (id <= 0) {
-      showFailToast("队伍加载失败");
-      return;
-    }
-    const res = await myAxios.get("/team/get", {
-      params: {
-        id,
-      },
-    });
-    console.log(id)
-    if (res?.code === 0) {
-      addTeamData.value = res.data;
-    } else {
-      showFailToast("队伍加载失败，请刷新重试");
-    }
-  })
+        if (id <= 0) {
+          showFailToast('加载队伍失败');
+          return;
+        }
+        const res = await myAxios.get("/team/get", {
+          params: {
+            id,
+          }
+        });
+        if (res?.code === 0) {
+          addTeamData.value = res.data;
+          if (addTeamData.value.avatarUrl) {
+            fileList.value = [
+              {url: addTeamData.value.avatarUrl, isImage: true},
+            ]
+          }
+        } else {
+          showFailToast('加载队伍失败，请刷新重试');
+        }
+      }
+  )
+  const afterRead = async (file) => {
+    // console.log(file.file);
+    const fileFile = file.file;
+    avatar.value = fileFile;
+    // 此时可以自行将文件上传至服务器
+    // console.log(res);
+  };
 
   // 提交
   const onSubmit = async () => {
+    showLoadingToast("更新队伍中");
+    const uploadRes = await myAxios.post("/fileOss/upload", {
+      'file': avatar.value
+    }, {
+      headers: {'Content-Type': 'multipart/form-data'},
+    })
+    avatarUrl.value = uploadRes.data;
     const postData = {
       ...addTeamData.value,
-      status: Number(addTeamData.value.status),
-      expireTime: moment(addTeamData.value.expireTime).format("YYYY-MM-DD HH:mm:ss")
+      avatarUrl: avatarUrl.value,
+      status: Number(addTeamData.value.status)
     }
+    // todo 前端参数校验
     const res = await myAxios.post("/team/update", postData);
     if (res?.code === 0 && res.data) {
       showSuccessToast('更新成功');
@@ -134,4 +153,7 @@ CreateTime:19:54
 </script>
 
 <style scoped>
+  #teamPage {
+
+  }
 </style>

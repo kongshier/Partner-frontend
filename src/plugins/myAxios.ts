@@ -7,10 +7,10 @@
 //自定义实例默认值
 import axios from "axios";
 
-// const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV === 'development';
 const myAxios = axios.create({
-  // baseURL: isDev ? 'http://localhost:8080/api' : '线上地址'
-  baseURL: 'http://localhost:8080/api'
+  baseURL: isDev ? 'http://localhost:8080/api' : 'http://8.134.37.7:8080/api'
+  // baseURL: 'http://localhost:8080/api'
 });
 
 myAxios.defaults.withCredentials = true;

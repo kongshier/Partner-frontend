@@ -3,11 +3,6 @@ User:Shier
 CreateTime:20:34
 用户登录界面
 -->
-<!--
-User:Shier
-CreateTime:20:34
-用户登录界面
--->
 <template>
   <van-row justify="center">
     <van-form @submit="onSubmit">
@@ -80,7 +75,6 @@ CreateTime:20:34
       // 跳转到之前的页面
       const redirectUrl = route.query?.redirect as string ?? '/';
       window.location.href = redirectUrl;
-
     } else {
       showFailToast("登录失败");
     }

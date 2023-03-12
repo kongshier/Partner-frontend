@@ -7,8 +7,8 @@ CreateTime:19:54
   <div>
     <van-card
         v-for="team in props.teamList"
-        :thumb="default_team_img"
         :desc="team.description"
+        :thumb=" team.avatarUrl===null || team.avatarUrl === ''  ? teamImgs[Math.round(Math.random()*4)] : team.avatarUrl"
         :title="`${team.name}`"
     >
       <template #tags>
@@ -43,6 +43,9 @@ CreateTime:19:54
         <van-button v-if=" team.userId === currentUser?.id" size="small" plain type="danger"
                     @click="doDeleteTeam(team.id)"> 解散队伍
         </van-button>
+        <van-button plain size="small"
+                    @click="doTeamDetail(team.id)">查看队伍
+        </van-button>
       </template>
     </van-card>
     <van-dialog v-model:show="showPasswordDialog" title="请输入密码" show-cancel-button @confirm="doJoinTeam"
@@ -55,11 +58,9 @@ CreateTime:19:54
 <script setup lang="ts">
   import {TeamType} from "../models/team";
   import {teamStatusEnum} from "../constants/team";
-  import default_team_img from '../../../hb-frontend/langbei-frontend/src/assets/team_awt_ikun.jpg';
   import myAxios from "../plugins/myAxios";
-  import { Image } from 'vant';
+  import teamImgs from "../services/teamImg";
   import {showFailToast, showSuccessToast} from "vant/lib/vant.es";
-
   import {useRouter} from "vue-router";
   import {onMounted, ref} from "vue";
   import {getCurrentUser} from "../services/user";
@@ -159,6 +160,18 @@ CreateTime:19:54
     } else {
       showFailToast('操作失败' + (res.description ? `，${res.description}` : ''));
     }
+  }
+  /**
+   * 跳转至队伍详情页
+   * @param id
+   */
+  const doTeamDetail = (id: number) => {
+    router.push({
+      path: '/team/detail',
+      query: {
+        id,
+      }
+    })
   }
 
 </script>

@@ -5,15 +5,25 @@ CreateTime:14:47
 -->
 <template>
   <div id="teamPage">
-    <van-search v-model="searchText" placeholder="搜索队伍" @search="onSearch"/>
+    <van-search v-model="searchText" placeholder="请输入搜索关键词" @search="onSearch"/>
     <van-tabs v-model:active="active" @change="onTabChange">
-      <van-tab title="公开队伍" name="public"/>
-      <van-tab title="加密队伍" name="private"/>
+      <van-tab title="普通队伍" name="public">
+        <template #title>
+          <van-icon name="smile-o" size="16px"/>
+          普通队伍
+        </template>
+      </van-tab>
+      <van-tab title="加密队伍" name="private">
+        <template #title>
+          <van-icon name="lock" size="16px"/>
+          加密队伍
+        </template>
+      </van-tab>
     </van-tabs>
     <div style="margin-bottom: 10px"/>
     <team-card-list :teamList="teamList"/>
-    <van-button class="add-button" icon="plus" type="primary" @click="toAddTeam"></van-button>
     <van-empty v-if="teamList?.length<1" description="无相关队伍"/>
+    <van-button class="add-button" icon="plus" type="primary" @click="toAddTeam"></van-button>
   </div>
 </template>
 

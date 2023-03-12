@@ -1,8 +1,3 @@
-<!--
-User:Shier
-CreateTime:11:23
-搜索界面
--->
 <template>
   <form action="/">
     <van-search
@@ -14,7 +9,7 @@ CreateTime:11:23
     />
   </form>
   <van-divider content-position="left">已选标签</van-divider>
-  <van-divider v-if="activeIds.length===0" content-position="center">请选择标签</van-divider>
+  <van-divider v-if="activeIds.length===0" content-position="center">有标签才会显示在主页喔</van-divider>
   <van-row gutter="15" style="padding: 0 15px">
     <van-col v-for="tag in activeIds">
       <van-tag closeable size="small" type="primary" @close="doClose(tag)">
@@ -30,23 +25,32 @@ CreateTime:11:23
       :items="tagsList"
   />
   <div style="padding: 15px">
-    <van-button block type="primary" @click="doSearchResult">搜索</van-button>
+    <van-button block type="primary" @click="doEditTags">修改</van-button>
   </div>
 
 </template>
 
 <script setup>
-  import {ref} from 'vue';
+  import {onMounted, ref} from 'vue';
   import {useRouter} from "vue-router";
+  import {useRoute} from "vue-router/dist/vue-router";
+  import {getCurrentUser} from "../services/user";
+  import myAxios from "../plugins/myAxios";
+  import {showFailToast, showSuccessToast} from "vant/lib/vant.es";
   import UserTagsList from "../constants/UserTagsList";
 
   const router = useRouter();
+  const route = useRoute();
+  const editTags = ref({
+    currentValue: route.query.currentValue,
+  })
   const searchText = ref('');
   const activeIds = ref([]);
   const activeIndex = ref(0);
-  //原数据
-  const originTagsList = UserTagsList
+  //列表原数据
+  const originTagsList = UserTagsList;
   const tagsList = ref(originTagsList);
+
   const onSearch = (val) => {
     //为了不改变原数组这里要深拷贝，否则children还是对象应用
     // let filterArr=JSON.parse(JSON.stringify(originTagsList))
@@ -71,6 +75,13 @@ CreateTime:11:23
     tagsList.value = originTagsList;
   };
 
+
+  //将原有标签设置进去
+  onMounted(() => {
+    const currentTags = editTags.value.currentValue + '';
+    activeIds.value = JSON.parse(currentTags);
+  })
+
   //移除标签
   const doClose = (tag) => {
     activeIds.value = activeIds.value.filter(item => {
@@ -78,13 +89,26 @@ CreateTime:11:23
     })
   }
 
-  const doSearchResult = () => {
-    router.push({
-      path: '/user/list',
-      query: {
-        tags: activeIds.value
-      }
+  const doEditTags = async () => {
+    if (activeIds.value.length >= 6) {
+      showFailToast("最多只能选择6个标签喔！");
+      return
+    }
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      showFailToast("用户未登录")
+      return;
+    }
+    const res = await myAxios.post("/user/update", {
+      id: currentUser.id,
+      tags: JSON.stringify(activeIds.value),
     })
+    if (res.code === 0 && res.data > 0) {
+      showSuccessToast("修改成功！");
+      router.back();
+    } else {
+      showFailToast("修改失败！");
+    }
   }
 </script>
 

@@ -3,7 +3,7 @@ User:Shier
 CreateTime:14:47
 -->
 <template>
-  <van-cell center title="心动模式">
+  <van-cell center title="开启匹配伙伴">
     <template #right-icon>
       <van-switch v-model="isMatchMode" size="25"/>
     </template>
@@ -20,7 +20,7 @@ CreateTime:14:47
   import {UserType} from "../models/user.d.ts";
 
   // 开关常量
-  const isMatchMode = ref<boolean>(true);
+  const isMatchMode = ref<boolean>(false);
   //用户列表
   const userList = ref([]);
   // 加载

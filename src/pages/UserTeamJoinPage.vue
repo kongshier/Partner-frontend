@@ -7,20 +7,20 @@ CreateTime:14:47
   <div id="teamPage">
     <van-search v-model="searchText" placeholder="搜索队伍" @search="onSearch"/>
     <team-card-list :teamList="teamList"/>
-    <van-empty v-if="teamList?.length<1" description="尚未加入队伍"/>
+    <van-empty v-if="teamList?.length < 1" description="数据为空"/>
   </div>
 </template>
+<script setup>
 
-<script setup lang="ts">
   import {useRouter} from "vue-router";
   import TeamCardList from "../components/TeamCardList.vue";
   import {onMounted, ref} from "vue";
   import myAxios from "../plugins/myAxios";
   import {showFailToast, showSuccessToast} from "vant/lib/vant.es";
 
-  const router = useRouter()
-  // 搜索默认为空
-  const searchText = ref('')
+  const router = useRouter();
+  const searchText = ref('');
+
   const teamList = ref([]);
 
   /**
@@ -41,12 +41,15 @@ CreateTime:14:47
       showFailToast('加载队伍失败，请刷新重试');
     }
   }
+
+
+  // 页面加载时只触发一次
   onMounted(() => {
     listTeam();
-  });
+  })
 
   const onSearch = (val) => {
-    listTeam(val)
+    listTeam(val);
   };
 
 </script>

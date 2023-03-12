@@ -7,6 +7,9 @@ CreateTime:19:54
   <div id="teamAddPage">
     <van-form @submit="onSubmit">
       <van-cell-group inset>
+        <van-row justify="center">
+          <van-uploader v-model="fileList" :after-read="afterRead" :max-count="1"/>
+        </van-row>
         <van-field
             v-model="addTeamData.name"
             name="name"
@@ -80,7 +83,7 @@ CreateTime:19:54
   import {ref} from "vue";
   import myAxios from "../plugins/myAxios";
   import moment from 'moment';
-  import {showFailToast, showSuccessToast} from "vant/lib/vant.es";
+  import {showFailToast, showSuccessToast,showLoadingToast} from "vant/lib/vant.es";
 
   const router = useRouter();
   // 日期展示器
@@ -103,8 +106,28 @@ CreateTime:19:54
 
   // 获取用户填写的信息
   const addTeamData = ref({...initFormData})
+  const fileList = ref([]);
+  const avatarUrl = ref('');
+  const avatar = ref();
+  const afterRead = async (file) => {
+    // console.log(file.file);
+
+    const fileFile = file.file;
+    avatar.value = fileFile;
+    // 此时可以自行将文件上传至服务器
+    // console.log(res);
+  };
 
   const onSubmit = async () => {
+    showLoadingToast("创建队伍中..");
+    if (avatar.value != null) {
+      const uploadRes = await myAxios.post("/fileOss/upload", {
+        'file': avatar.value
+      }, {
+        headers: {'Content-Type': 'multipart/form-data'},
+      })
+      avatarUrl.value = uploadRes.data;
+    }
     const postData = {
       ...addTeamData.value,
       status: Number(addTeamData.value.status),
@@ -112,15 +135,16 @@ CreateTime:19:54
     }
     const res = await myAxios.post("/team/add", postData);
     if (res?.code === 0 && res.data) {
-      showSuccessToast('添加成功');
+      showSuccessToast('创建成功');
       router.push({
         path: '/team',
         replace: true,
       });
     } else {
-      showFailToast('添加失败');
+      showFailToast('创建失败');
     }
   }
+
 </script>
 <style scoped>
 </style>

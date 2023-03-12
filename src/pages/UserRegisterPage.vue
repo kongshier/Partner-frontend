@@ -10,9 +10,8 @@
             round
             width="5rem"/>
       </van-row>
-
       <van-row justify="center">
-        <h3>"寻找志同道合的朋友"</h3>
+        <h3>寻找知己</h3>
       </van-row>
       <van-divider/>
       <van-cell-group inset>
