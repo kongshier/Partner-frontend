@@ -6,10 +6,10 @@ import {getCurrentUserState, setCurrentUserState} from "../states/user";
  * @returns {Promise<null|any>}
  */
 export const getCurrentUser = async () => {
-    // const user = getCurrentUserState();
-    // if (user) {
-    //     return user;
-    // }
+    const user = getCurrentUserState();
+    if (user) {
+        return user;
+    }
     // 从远程处获取用户信息
     const res = await myAxios.get("/user/current");
     // @ts-ignore

@@ -7,12 +7,13 @@
 //自定义实例默认值
 import axios from "axios";
 
+// 区分环境
 const isDev = process.env.NODE_ENV === 'development';
 const myAxios = axios.create({
-  baseURL: isDev ? 'http://localhost:8080/api' : 'http://8.134.37.7:8080/api'
-  // baseURL: 'http://localhost:8080/api'
+  baseURL: isDev ? 'http://localhost:2870/api' : 'http://8.134.37.7:2810/api'
+  // baseURL:  process.env.NODE_ENV === 'development' ? 'http://localhost:2810/api' : 'http://8.134.37.7:2810/api'
+  // baseURL: 'http://localhost:2810/api'
 });
-
 myAxios.defaults.withCredentials = true;
 
 // 添加请求拦截器

@@ -52,36 +52,36 @@ CreateTime:11:01
   </template>
 </template>
 <script setup lang="ts">
-  import {useRouter} from "vue-router";
-  import {onMounted, ref} from "vue";
-  import {getCurrentUser} from "../services/user";
-  import myAxios from "../plugins/myAxios";
-  import {showFailToast, showSuccessToast} from "vant/lib/vant.es";
+import {useRouter} from "vue-router";
+import {onMounted, ref} from "vue";
+import {getCurrentUser} from "../services/user";
+import myAxios from "../plugins/myAxios";
+import {showSuccessToast} from "vant/lib/vant.es";
 
-  const user = ref();
-  const router = useRouter()
+const user = ref();
+const router = useRouter()
 
-  onMounted(async () => {
-    // 获取到当前用户的信息
-    user.value = await getCurrentUser();
-    if (user.value.tags) {
-      user.value.tags = JSON.parse(user.value.tags);
-    }
-  })
-  const quit = async () => {
-    const res = await myAxios.post("/user/logout");
-    if (res.code === 0) {
-      showSuccessToast("退出成功！");
-      await router.push({
-        path: '/user/login',
-      })
-    }
+onMounted(async () => {
+  // 获取到当前用户的信息
+  user.value = await getCurrentUser();
+  if (user.value.tags) {
+    user.value.tags = JSON.parse(user.value.tags);
   }
+})
+const quit = async () => {
+  const res = await myAxios.post("/user/logout");
+  if (res.code === 0) {
+    showSuccessToast("退出成功！");
+    await router.push({
+      path: '/user/login',
+    })
+  }
+}
 
 </script>
 
 <style scoped>
-  :root {
-    --van-card-font-size: 10px;
-  }
+:root {
+  --van-card-font-size: 10px;
+}
 </style>

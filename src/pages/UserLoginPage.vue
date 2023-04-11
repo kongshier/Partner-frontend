@@ -50,35 +50,35 @@ CreateTime:20:34
 
 <script setup lang="ts">
 
-  import myAxios from "../plugins/myAxios.ts";
-  import {showFailToast, showSuccessToast} from "vant/lib/vant.es";
-  import {ref} from "vue";
-  import {useRoute, useRouter} from "vue-router";
-  import friend from "../assets/friend.png"
+import myAxios from "../plugins/myAxios.ts";
+import {showFailToast, showSuccessToast} from "vant/lib/vant.es";
+import {ref} from "vue";
+import {useRoute, useRouter} from "vue-router";
+import friend from "../assets/friend.png"
 
-  // 获取页面跳转
-  const router = useRouter();
-  // 获取页面数据
-  const route = useRoute();
+// 获取页面跳转
+const router = useRouter();
+// 获取页面数据
+const route = useRoute();
 
-  const userAccount = ref();
-  const userPassword = ref();
+const userAccount = ref();
+const userPassword = ref();
 
-  const onSubmit = async () => {
-    const res = await myAxios.post("/user/login", {
-      userAccount: userAccount.value,
-      userPassword: userPassword.value
-    });
-    console.log(res, '用户登录');
-    if (res.code == 0 && res.data) {
-      showSuccessToast('登录成功');
-      // 跳转到之前的页面
-      const redirectUrl = route.query?.redirect as string ?? '/';
-      window.location.href = redirectUrl;
-    } else {
-      showFailToast("登录失败");
-    }
-  };
+const onSubmit = async () => {
+  const res = await myAxios.post("/user/login", {
+    userAccount: userAccount.value,
+    userPassword: userPassword.value
+  });
+  console.log(res, '用户登录');
+  if (res.code == 0 && res.data) {
+    showSuccessToast('登录成功');
+    // 跳转到之前的页面
+    const redirectUrl = route.query?.redirect as string ?? '/';
+    window.location.href = redirectUrl;
+  } else {
+    showFailToast("登录失败？账号不存在或者密码不正确!");
+  }
+};
 </script>
 
 <style scoped>
