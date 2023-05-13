@@ -8,11 +8,9 @@
 import axios from "axios";
 
 // 区分环境
-const isDev = process.env.NODE_ENV === 'development';
 const myAxios = axios.create({
-  baseURL: isDev ? 'http://localhost:2870/api' : 'http://8.134.37.7:2810/api'
-  // baseURL:  process.env.NODE_ENV === 'development' ? 'http://localhost:2810/api' : 'http://8.134.37.7:2810/api'
-  // baseURL: 'http://localhost:2810/api'
+// @ts-ignore
+  baseURL: process.env.NODE_ENV === 'development' ? 'http://localhost:8102/api' : 'http://partner.kongshier.top'
 });
 myAxios.defaults.withCredentials = true;
 
@@ -32,10 +30,8 @@ myAxios.interceptors.response.use(function (response) {
   console.log("接收到的请求", response)
   // 未登录跳转到登录页
   if (response?.data?.code === 40100) {
-    // alert(111)
     const redirectUrl = window.location.href;
     window.location.href = `/user/login?redirect=${redirectUrl}`;
-    // window.location.href = `/user/login`;
   }
   return response.data;
 }, function (error) {
